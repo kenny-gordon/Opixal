@@ -11,7 +11,7 @@ namespace Opixal.Network.Client
 
         public delegate void Packet(byte[] data);
 
-        public static Dictionary<int, Packet> packets = new Dictionary<int, Packet>();
+        public static readonly Dictionary<int, Packet> packets = new Dictionary<int, Packet>();
 
         public static void InitializePackets()
         {

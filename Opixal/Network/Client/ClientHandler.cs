@@ -45,7 +45,7 @@ namespace Opixal.Network.Client
                 }
             }
 
-            while (pLength > 0 & pLength <= clientBuffer.Length() - 4)
+            while (pLength > 0 && pLength <= clientBuffer.Length() - 4)
             {
                 if (pLength <= clientBuffer.Length() - 4)
                 {

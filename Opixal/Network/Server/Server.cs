@@ -44,7 +44,7 @@ namespace Opixal.Network.Server
             stream = socket.GetStream();
             receiveBuffer = new byte[4096];
             stream.BeginRead(receiveBuffer, 0, socket.ReceiveBufferSize, OnReceiveData, null);
-            Console.WriteLine("Incoming connection from '{0}' received.", socket.Client.RemoteEndPoint.ToString());
+            Console.WriteLine("Incoming connection from '{0}' received.", socket.Client.RemoteEndPoint);
         }
 
         private void OnReceiveData(IAsyncResult asyncResult)
@@ -72,14 +72,14 @@ namespace Opixal.Network.Server
 
         private void CloseConnection()
         {
-            Console.WriteLine("Connection from '{0}' has been terminated.", socket.Client.RemoteEndPoint.ToString());
+            Console.WriteLine("Connection from '{0}' has been terminated.", socket.Client.RemoteEndPoint);
             socket.Close();
         }
     }
 
     internal static class ClientObjectManager
     {
-        public static Dictionary<int, ClientObject> client = new Dictionary<int, ClientObject>();
+        public static readonly Dictionary<int, ClientObject> client = new Dictionary<int, ClientObject>();
 
         public static void CreateNewConnection(TcpClient tempClient)
         {
@@ -93,11 +93,12 @@ namespace Opixal.Network.Server
 
         public static void SendDataTo(int connectionID, byte[] data)
         {
-            ByteBuffer buffer = new ByteBuffer();
-            buffer.WriteInteger((data.GetUpperBound(0) - data.GetLowerBound(0)) + 1);
-            buffer.WriteBytes(data);
-            client[connectionID].stream.BeginWrite(buffer.ToArray(), 0, buffer.ToArray().Length, null, null);
-            buffer.Dispose();
+            using (ByteBuffer buffer = new ByteBuffer())
+            {
+                buffer.WriteInteger((data.GetUpperBound(0) - data.GetLowerBound(0)) + 1);
+                buffer.WriteBytes(data);
+                client[connectionID].stream.BeginWrite(buffer.ToArray(), 0, buffer.ToArray().Length, null, null);
+            }
         }
     }
 }

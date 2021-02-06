@@ -72,10 +72,11 @@ namespace Opixal.Network.Server
 
         private static void HandleDataPackets(int connectionID, byte[] data)
         {
-            ByteBuffer buffer = new ByteBuffer();
-            buffer.WriteBytes(data);
-            int PacketID = buffer.ReadInteger();
-            buffer.Dispose();
+            using (ByteBuffer buffer = new ByteBuffer())
+            {
+                buffer.WriteBytes(data);
+                int PacketID = buffer.ReadInteger();
+            }
 
             if (packets.TryGetValue(PacketID, out Packet packet))
             {
@@ -88,11 +89,13 @@ namespace Opixal.Network.Server
     {
         public static void ServerOnReceive(int connectionID, byte[] data)
         {
-            ByteBuffer buffer = new ByteBuffer();
-            buffer.WriteBytes(data);
-            int packetID = buffer.ReadInteger();
-            string message = buffer.ReadString();
-            buffer.Dispose();
+            using (ByteBuffer buffer = new ByteBuffer())
+            {
+                buffer.WriteBytes(data);
+                int packetID = buffer.ReadInteger();
+                string message = buffer.ReadString();
+            }
+            
             Console.WriteLine(message);
             Thread.Sleep(1000); // remove this
             PacketSender.ServerOnSend(connectionID);
@@ -103,11 +106,12 @@ namespace Opixal.Network.Server
     {
         public static void ServerOnSend(int connectionID)
         {
-            ByteBuffer buffer = new ByteBuffer();
-            buffer.WriteInteger((int)PacketType.Handshake);
-            buffer.WriteString("Hello Client");
-            ClientObjectManager.SendDataTo(connectionID, buffer.ToArray());
-            buffer.Dispose();
+            using (ByteBuffer buffer = new ByteBuffer())
+            {
+                buffer.WriteInteger((int)PacketType.Handshake);
+                buffer.WriteString("Hello Client");
+                ClientObjectManager.SendDataTo(connectionID, buffer.ToArray());
+            }
         }
     }
 }

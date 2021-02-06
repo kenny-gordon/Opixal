@@ -78,11 +78,11 @@ namespace Opixal.Network.Client
             {
                 buffer.WriteBytes(data);
                 int PacketID = buffer.ReadInteger();
-            }
-            
-            if (packets.TryGetValue(PacketID, out Packet packet))
-            {
-                packet.Invoke(data);
+
+                if (packets.TryGetValue(PacketID, out Packet packet))
+                {
+                    packet.Invoke(data);
+                }
             }
         }
     }
@@ -92,13 +92,13 @@ namespace Opixal.Network.Client
         public static void ClientOnReceive(byte[] data)
         {
             using (ByteBuffer buffer = new ByteBuffer())
-            {            
+            {
                 buffer.WriteBytes(data);
-                int packetID = buffer.ReadInteger();
+                int packetID = buffer.ReadInteger(); // Not Used
                 object message = buffer.ReadString();
+                Console.WriteLine(message);
             }
-            
-            Console.WriteLine(message);
+
             Thread.Sleep(1000); // remove this
             PacketSender.ClientOnSend();
         }

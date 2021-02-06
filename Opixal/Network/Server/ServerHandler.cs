@@ -76,11 +76,11 @@ namespace Opixal.Network.Server
             {
                 buffer.WriteBytes(data);
                 int PacketID = buffer.ReadInteger();
-            }
 
-            if (packets.TryGetValue(PacketID, out Packet packet))
-            {
-                packet.Invoke(connectionID, data);
+                if (packets.TryGetValue(PacketID, out Packet packet))
+                {
+                    packet.Invoke(connectionID, data);
+                }
             }
         }
     }
@@ -92,11 +92,11 @@ namespace Opixal.Network.Server
             using (ByteBuffer buffer = new ByteBuffer())
             {
                 buffer.WriteBytes(data);
-                int packetID = buffer.ReadInteger();
+                int packetID = buffer.ReadInteger(); // Not Used
                 string message = buffer.ReadString();
+                Console.WriteLine(message);
             }
-            
-            Console.WriteLine(message);
+
             Thread.Sleep(1000); // remove this
             PacketSender.ServerOnSend(connectionID);
         }

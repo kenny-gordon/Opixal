@@ -104,7 +104,7 @@ namespace Opixal.Network.Shared
                 }
 
                 byte value = ReadBuffer[ReadPosition];
-                if (Peek & Buffer.Count > ReadPosition)
+                if (Peek && Buffer.Count > ReadPosition)
                 {
                     ReadPosition += 1;
                 }
@@ -152,7 +152,7 @@ namespace Opixal.Network.Shared
                 }
 
                 short value = BitConverter.ToInt16(ReadBuffer, ReadPosition);
-                if (Peek & Buffer.Count > ReadPosition)
+                if (Peek && Buffer.Count > ReadPosition)
                 {
                     ReadPosition += 2;
                 }
@@ -176,7 +176,7 @@ namespace Opixal.Network.Shared
                 }
 
                 int value = BitConverter.ToInt32(ReadBuffer, ReadPosition);
-                if (Peek & Buffer.Count > ReadPosition)
+                if (Peek && Buffer.Count > ReadPosition)
                 {
                     ReadPosition += 4;
                 }
@@ -200,7 +200,7 @@ namespace Opixal.Network.Shared
                 }
 
                 long value = BitConverter.ToInt64(ReadBuffer, ReadPosition);
-                if (Peek & Buffer.Count > ReadPosition)
+                if (Peek && Buffer.Count > ReadPosition)
                 {
                     ReadPosition += 8;
                 }
@@ -224,7 +224,7 @@ namespace Opixal.Network.Shared
                 }
 
                 float value = BitConverter.ToSingle(ReadBuffer, ReadPosition);
-                if (Peek & Buffer.Count > ReadPosition)
+                if (Peek && Buffer.Count > ReadPosition)
                 {
                     ReadPosition += 4;
                 }
@@ -248,7 +248,7 @@ namespace Opixal.Network.Shared
                 }
 
                 bool value = BitConverter.ToBoolean(ReadBuffer, ReadPosition);
-                if (Peek & Buffer.Count > ReadPosition)
+                if (Peek && Buffer.Count > ReadPosition)
                 {
                     ReadPosition += 1;
                 }
@@ -274,7 +274,7 @@ namespace Opixal.Network.Shared
                 }
 
                 string value = Encoding.ASCII.GetString(ReadBuffer, ReadPosition, lenght);
-                if (Peek & Buffer.Count > ReadPosition)
+                if (Peek && Buffer.Count > ReadPosition)
                 {
                     if (value.Length > 0)
                     {

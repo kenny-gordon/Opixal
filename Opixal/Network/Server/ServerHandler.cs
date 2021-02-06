@@ -9,7 +9,7 @@ namespace Opixal.Network.Server
     {
         public delegate void Packet(int connectionID, byte[] data);
 
-        public static Dictionary<int, Packet> packets = new Dictionary<int, Packet>();
+        public static readonly Dictionary<int, Packet> packets = new Dictionary<int, Packet>();
 
         public static void InitializePackets()
         {

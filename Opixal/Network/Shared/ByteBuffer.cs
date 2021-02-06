@@ -7,7 +7,7 @@ namespace Opixal.Network.Shared
 {
     public class ByteBuffer : IDisposable
     {
-        private List<byte> Buffer;
+        private readonly List<byte> Buffer;
         private byte[] ReadBuffer;
         private int ReadPosition;
         private bool BufferUpdated = false;

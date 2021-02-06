@@ -43,7 +43,7 @@ namespace Opixal.Network.Server
                 }
             }
 
-            while (pLength > 0 & pLength <= ClientObjectManager.client[connectionID].buffer.Length() - 4)
+            while (pLength > 0 && pLength <= ClientObjectManager.client[connectionID].buffer.Length() - 4)
             {
                 if (pLength <= ClientObjectManager.client[connectionID].buffer.Length() - 4)
                 {

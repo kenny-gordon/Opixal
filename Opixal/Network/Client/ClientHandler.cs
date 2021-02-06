@@ -74,10 +74,12 @@ namespace Opixal.Network.Client
 
         private static void HandleDataPackets(byte[] data)
         {
-            ByteBuffer buffer = new ByteBuffer();
-            buffer.WriteBytes(data);
-            int PacketID = buffer.ReadInteger();
-            buffer.Dispose();
+            using (ByteBuffer buffer = new ByteBuffer())
+            {
+                buffer.WriteBytes(data);
+                int PacketID = buffer.ReadInteger();
+            }
+            
             if (packets.TryGetValue(PacketID, out Packet packet))
             {
                 packet.Invoke(data);
@@ -89,11 +91,13 @@ namespace Opixal.Network.Client
     {
         public static void ClientOnReceive(byte[] data)
         {
-            ByteBuffer buffer = new ByteBuffer();
-            buffer.WriteBytes(data);
-            int packetID = buffer.ReadInteger();
-            object message = buffer.ReadString();
-            buffer.Dispose();
+            using (ByteBuffer buffer = new ByteBuffer())
+            {            
+                buffer.WriteBytes(data);
+                int packetID = buffer.ReadInteger();
+                object message = buffer.ReadString();
+            }
+            
             Console.WriteLine(message);
             Thread.Sleep(1000); // remove this
             PacketSender.ClientOnSend();
@@ -104,11 +108,12 @@ namespace Opixal.Network.Client
     {
         public static void ClientOnSend()
         {
-            ByteBuffer buffer = new ByteBuffer();
-            buffer.WriteInteger((int)PacketType.Handshake);
-            buffer.WriteString("Hello Server");
-            Client.SendData(buffer.ToArray());
-            buffer.Dispose();
+            using (ByteBuffer buffer = new ByteBuffer())
+            {
+                buffer.WriteInteger((int)PacketType.Handshake);
+                buffer.WriteString("Hello Server");
+                Client.SendData(buffer.ToArray());
+            }
         }
     }
 }

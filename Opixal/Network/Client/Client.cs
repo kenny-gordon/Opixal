@@ -71,11 +71,12 @@ namespace Opixal.Network.Client
 
         public static void SendData(byte[] data)
         {
-            ByteBuffer buffer = new ByteBuffer();
-            buffer.WriteInteger((data.GetUpperBound(0) - data.GetLowerBound(0) + 1));
-            buffer.WriteBytes(data);
-            clientStream.BeginWrite(buffer.ToArray(), 0, buffer.ToArray().Length, null, null);
-            buffer.Dispose();
+            using (ByteBuffer buffer = new ByteBuffer())
+            {
+                buffer.WriteInteger((data.GetUpperBound(0) - data.GetLowerBound(0) + 1));
+                buffer.WriteBytes(data);
+                clientStream.BeginWrite(buffer.ToArray(), 0, buffer.ToArray().Length, null, null);
+            }
         }
 
         public static void Disconect()

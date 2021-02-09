@@ -4,7 +4,6 @@ namespace Opixal.Logging
 {
     internal class Param
     {
-        public string LogTimeStamp { get; set; }
         public LogLevel LogLevel { get; set; }
         public object LogObject { get; set; }
         public string LogAction { get; set; }
@@ -17,9 +16,8 @@ namespace Opixal.Logging
             LogMessage = "";
         }
 
-        public Param(string logTimeStamp, LogLevel logLevel, object logObject, string logAction, Exception logException, string logMessage)
+        public Param(LogLevel logLevel, object logObject, string logAction, Exception logException, string logMessage)
         {
-            LogTimeStamp = logTimeStamp;
             LogLevel = logLevel;
             LogObject = logObject;
             LogAction = logAction;

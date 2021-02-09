@@ -7,18 +7,15 @@ namespace Opixal.Logging
 {
     public class Logger : ILogger
     {
-        private static readonly Lazy<Logger> lazy = new Lazy<Logger>(() => new Logger());
-        public static Logger Instance { get { return lazy.Value; } }
-
         private readonly BlockingCollection<Param> _Params = new BlockingCollection<Param>();
 
-        private Logger()
+        public Logger()
         {
             Task.Factory.StartNew(() =>
             {
-                foreach (Param p in _Params.GetConsumingEnumerable())
+                foreach (Param param in _Params.GetConsumingEnumerable())
                 {
-                    switch (p.LogLevel)
+                    switch (param.LogLevel)
                     {
                         case LogLevel.Trace:
                             Console.ForegroundColor = ConsoleColor.Green;
@@ -59,7 +56,9 @@ namespace Opixal.Logging
                             break;
                     }
 
-                    Console.WriteLine(JsonSerializer.Serialize(p, new JsonSerializerOptions { IgnoreNullValues = true }));
+                    (string TimeStamp, Param param) context = (TimeStamp, param);
+
+                    Console.WriteLine(JsonSerializer.Serialize(context, new JsonSerializerOptions { IgnoreNullValues = true }));
                     Console.ForegroundColor = ConsoleColor.Gray;
                 }
             });
@@ -70,7 +69,6 @@ namespace Opixal.Logging
             _Params.CompleteAdding();
         }
 
-        // TIMESTAMP | LOGLEVEL | LOGOBJECT | LOGACTION | LOGEXCEPTION | LOGMESSAGE
         private string TimeStamp
         {
             get
@@ -82,43 +80,37 @@ namespace Opixal.Logging
 
         public void Log(LogLevel logLevel, string logMessage)
         {
-            Param param = new Param(TimeStamp, logLevel, null, null, null, logMessage);
+            Param param = new Param(logLevel, null, null, null, logMessage);
             _Params.Add(param);
         }
 
         public void Log(LogLevel logLevel, Exception logException)
         {
-            Param param = new Param(TimeStamp, logLevel, null, null, logException, null);
+            Param param = new Param(logLevel, null, null, logException, null);
             _Params.Add(param);
         }
 
         public void Log<T>(LogLevel logLevel, T logObject, string logMessage)
         {
-            Param param = new Param(TimeStamp, logLevel, logObject, null, null, logMessage);
+            Param param = new Param(logLevel, logObject, null, null, logMessage);
             _Params.Add(param);
         }
 
         public void Log<T>(LogLevel logLevel, T logObject, Exception logException)
         {
-            Param param = new Param(TimeStamp, logLevel, logObject, null, logException, null);
+            Param param = new Param(logLevel, logObject, null, logException, null);
             _Params.Add(param);
         }
 
         public void Log<T>(LogLevel logLevel, T logObject, string logAction, string logMessage)
         {
-            Param param = new Param(TimeStamp, logLevel, logObject, logAction, null, logMessage);
+            Param param = new Param(logLevel, logObject, logAction, null, logMessage);
             _Params.Add(param);
         }
 
         public void Log<T>(LogLevel logLevel, T logObject, string logAction, Exception logException)
         {
-            Param param = new Param(TimeStamp, logLevel, logObject, logAction, logException, null);
-            _Params.Add(param);
-        }
-
-        public void Log<T>(LogLevel logLevel, T logObject, string logAction = null, Exception logException = null, string logMessage = null)
-        {
-            Param param = new Param(TimeStamp, logLevel, logObject, logAction, logException, logMessage);
+            Param param = new Param(logLevel, logObject, logAction, logException, null);
             _Params.Add(param);
         }
     }

@@ -95,7 +95,7 @@ namespace Opixal.Network.Client
             {
                 buffer.WriteBytes(data);
                 int packetID = buffer.ReadInteger(); // Not Used
-                object message = buffer.ReadString();
+                string message = buffer.ReadString();
                 Console.WriteLine(message);
             }
 

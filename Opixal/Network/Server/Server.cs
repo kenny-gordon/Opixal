@@ -1,4 +1,5 @@
-﻿using Opixal.Network.Shared;
+﻿using Opixal.Logging;
+using Opixal.Network.Shared;
 using System;
 using System.Collections.Generic;
 using System.Net;
@@ -6,36 +7,52 @@ using System.Net.Sockets;
 
 namespace Opixal.Network.Server
 {
-    internal class Server
+    internal static class ClientObjectManager
     {
-        private static TcpListener serverSocket;
+        #region Fields
 
-        public static void InitializeNetwork(int port)
+        public static readonly Dictionary<int, ClientObject> client = new Dictionary<int, ClientObject>();
+
+        #endregion Fields
+
+        #region Methods
+
+        public static void CreateNewConnection(TcpClient tempClient)
         {
-            Console.WriteLine("Initializing Packets");
-            ServerHandler.InitializePackets();
-
-            serverSocket = new TcpListener(IPAddress.Any, port);
-            serverSocket.Start();
-            serverSocket.BeginAcceptTcpClient(new AsyncCallback(OnClientConnect), null);
-            Console.WriteLine("Server Started on {0}", serverSocket.LocalEndpoint);
+            ClientObject newClient = new ClientObject();
+            newClient.socket = tempClient;
+            newClient.connectionID = ((IPEndPoint)tempClient.Client.RemoteEndPoint).Port;
+            newClient.Start();
+            client.Add(newClient.connectionID, newClient);
+            PacketSender.ServerOnSend(newClient.connectionID);
         }
 
-        private static void OnClientConnect(IAsyncResult asyncResult)
+        public static void SendDataTo(int connectionID, byte[] data)
         {
-            TcpClient client = serverSocket.EndAcceptTcpClient(asyncResult);
-            serverSocket.BeginAcceptTcpClient(new AsyncCallback(OnClientConnect), null);
-            ClientObjectManager.CreateNewConnection(client);
+            using (ByteBuffer buffer = new ByteBuffer())
+            {
+                buffer.WriteInteger((data.GetUpperBound(0) - data.GetLowerBound(0)) + 1);
+                buffer.WriteBytes(data);
+                client[connectionID].stream.BeginWrite(buffer.ToArray(), 0, buffer.ToArray().Length, null, null);
+            }
         }
+
+        #endregion Methods
     }
 
     internal class ClientObject
     {
+        #region Fields
+
+        public ByteBuffer buffer;
         public int connectionID;
         public TcpClient socket;
         public NetworkStream stream;
         private byte[] receiveBuffer;
-        public ByteBuffer buffer;
+
+        #endregion Fields
+
+        #region Methods
 
         public void Start()
         {
@@ -44,7 +61,17 @@ namespace Opixal.Network.Server
             stream = socket.GetStream();
             receiveBuffer = new byte[4096];
             stream.BeginRead(receiveBuffer, 0, socket.ReceiveBufferSize, OnReceiveData, null);
-            Console.WriteLine("Incoming connection from '{0}' received.", socket.Client.RemoteEndPoint);
+            
+            //Console.WriteLine("Incoming connection from '{0}' received.", socket.Client.RemoteEndPoint);
+            Program.LogManager.LogInfo(message: $"Incoming connection from {socket.Client.RemoteEndPoint} received.", type: typeof(ClientObject));
+        }
+
+        private void CloseConnection()
+        {
+            //Console.WriteLine("Connection from '{0}' has been terminated.", socket.Client.RemoteEndPoint);
+            Program.LogManager.LogInfo(message: $"Connection from {socket.Client.RemoteEndPoint} has been terminated.", type: typeof(ClientObject));
+
+            socket.Close();
         }
 
         private void OnReceiveData(IAsyncResult asyncResult)
@@ -70,35 +97,40 @@ namespace Opixal.Network.Server
             }
         }
 
-        private void CloseConnection()
-        {
-            Console.WriteLine("Connection from '{0}' has been terminated.", socket.Client.RemoteEndPoint);
-            socket.Close();
-        }
+        #endregion Methods
     }
 
-    internal static class ClientObjectManager
+    internal class Server
     {
-        public static readonly Dictionary<int, ClientObject> client = new Dictionary<int, ClientObject>();
+        #region Fields
 
-        public static void CreateNewConnection(TcpClient tempClient)
+        private static TcpListener serverSocket;
+
+        #endregion Fields
+
+        #region Methods
+
+        public static void InitializeNetwork(int port)
         {
-            ClientObject newClient = new ClientObject();
-            newClient.socket = tempClient;
-            newClient.connectionID = ((IPEndPoint)tempClient.Client.RemoteEndPoint).Port;
-            newClient.Start();
-            client.Add(newClient.connectionID, newClient);
-            PacketSender.ServerOnSend(newClient.connectionID);
+            //Console.WriteLine("Initializing Packets");
+            Program.LogManager.LogInfo(message: "Initializing Packets", type: typeof(Server));
+            ServerHandler.InitializePackets();
+
+            serverSocket = new TcpListener(IPAddress.Any, port);
+            serverSocket.Start();
+            serverSocket.BeginAcceptTcpClient(new AsyncCallback(OnClientConnect), null);
+            //Console.WriteLine("Server Started on {0}", serverSocket.LocalEndpoint);
+            Program.LogManager.LogInfo(message: $"Server Started on {serverSocket.LocalEndpoint}", type: typeof(Server));
+
         }
 
-        public static void SendDataTo(int connectionID, byte[] data)
+        private static void OnClientConnect(IAsyncResult asyncResult)
         {
-            using (ByteBuffer buffer = new ByteBuffer())
-            {
-                buffer.WriteInteger((data.GetUpperBound(0) - data.GetLowerBound(0)) + 1);
-                buffer.WriteBytes(data);
-                client[connectionID].stream.BeginWrite(buffer.ToArray(), 0, buffer.ToArray().Length, null, null);
-            }
+            TcpClient client = serverSocket.EndAcceptTcpClient(asyncResult);
+            serverSocket.BeginAcceptTcpClient(new AsyncCallback(OnClientConnect), null);
+            ClientObjectManager.CreateNewConnection(client);
         }
+
+        #endregion Methods
     }
 }

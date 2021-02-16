@@ -1,20 +1,63 @@
 ﻿using Opixal.Network.Shared;
-using System;
 using System.Collections.Generic;
 using System.Threading;
 
 namespace Opixal.Network.Server
 {
+    internal static class PacketReceiver
+    {
+        #region Methods
+
+        public static void ServerOnReceive(int connectionID, byte[] data)
+        {
+            using (ByteBuffer buffer = new ByteBuffer())
+            {
+                buffer.WriteBytes(data);
+                int packetID = buffer.ReadInteger(); // Not Used
+                string message = buffer.ReadString();
+                //Console.WriteLine(message);
+                Program.LogManager.Log(new Logging.LogEntry(Logging.LoggingEventType.DEBUG, message));
+            }
+
+            Thread.Sleep(1000); // remove this
+            PacketSender.ServerOnSend(connectionID);
+        }
+
+        #endregion Methods
+    }
+
+    internal static class PacketSender
+    {
+        #region Methods
+
+        public static void ServerOnSend(int connectionID)
+        {
+            using (ByteBuffer buffer = new ByteBuffer())
+            {
+                buffer.WriteInteger((int)PacketType.Handshake);
+                buffer.WriteString($"Server Sent a Package of type {PacketType.Handshake}");
+                ClientObjectManager.SendDataTo(connectionID, buffer.ToArray());
+            }
+        }
+
+        #endregion Methods
+    }
+
     internal static class ServerHandler
     {
-        public delegate void Packet(int connectionID, byte[] data);
+        #region Fields
 
         public static readonly Dictionary<int, Packet> packets = new Dictionary<int, Packet>();
 
-        public static void InitializePackets()
-        {
-            packets.Add((int)PacketType.Handshake, PacketReceiver.ServerOnReceive);
-        }
+        #endregion Fields
+
+        #region Delegates
+
+        public delegate void Packet(int connectionID, byte[] data);
+
+        #endregion Delegates
+
+        #region Methods
 
         public static void HandleData(int connectionID, byte[] data)
         {
@@ -70,6 +113,11 @@ namespace Opixal.Network.Server
             }
         }
 
+        public static void InitializePackets()
+        {
+            packets.Add((int)PacketType.Handshake, PacketReceiver.ServerOnReceive);
+        }
+
         private static void HandleDataPackets(int connectionID, byte[] data)
         {
             using (ByteBuffer buffer = new ByteBuffer())
@@ -83,35 +131,7 @@ namespace Opixal.Network.Server
                 }
             }
         }
-    }
 
-    internal static class PacketReceiver
-    {
-        public static void ServerOnReceive(int connectionID, byte[] data)
-        {
-            using (ByteBuffer buffer = new ByteBuffer())
-            {
-                buffer.WriteBytes(data);
-                int packetID = buffer.ReadInteger(); // Not Used
-                string message = buffer.ReadString();
-                Console.WriteLine(message);
-            }
-
-            Thread.Sleep(1000); // remove this
-            PacketSender.ServerOnSend(connectionID);
-        }
-    }
-
-    internal static class PacketSender
-    {
-        public static void ServerOnSend(int connectionID)
-        {
-            using (ByteBuffer buffer = new ByteBuffer())
-            {
-                buffer.WriteInteger((int)PacketType.Handshake);
-                buffer.WriteString("Hello Client");
-                ClientObjectManager.SendDataTo(connectionID, buffer.ToArray());
-            }
-        }
+        #endregion Methods
     }
 }

@@ -6,15 +6,15 @@ namespace Opixal.Network.Client
 {
     internal static class Client
     {
+        #region Fields
+
         private static TcpClient clientSocket;
         private static NetworkStream clientStream;
         private static byte[] receiveBuffer;
 
-        public static void InitializeNetwork(string serverAddr, int serverPort)
-        {
-            ClientHandler.InitializePackets();
-            ClientConnect(serverAddr, serverPort);
-        }
+        #endregion Fields
+
+        #region Methods
 
         public static void ClientConnect(string serverAddr, int serverPort)
         {
@@ -23,6 +23,27 @@ namespace Opixal.Network.Client
             clientSocket.SendBufferSize = 4096;
             receiveBuffer = new byte[4096 * 2];
             clientSocket.BeginConnect(serverAddr, serverPort, new AsyncCallback(ClientConnectCallback), clientSocket);
+        }
+
+        public static void Disconect()
+        {
+            clientSocket.Close();
+        }
+
+        public static void InitializeNetwork(string serverAddr, int serverPort)
+        {
+            ClientHandler.InitializePackets();
+            ClientConnect(serverAddr, serverPort);
+        }
+
+        public static void SendData(byte[] data)
+        {
+            using (ByteBuffer buffer = new ByteBuffer())
+            {
+                buffer.WriteInteger((data.GetUpperBound(0) - data.GetLowerBound(0) + 1));
+                buffer.WriteBytes(data);
+                clientStream.BeginWrite(buffer.ToArray(), 0, buffer.ToArray().Length, null, null);
+            }
         }
 
         private static void ClientConnectCallback(IAsyncResult asyncResult)
@@ -69,19 +90,6 @@ namespace Opixal.Network.Client
             }
         }
 
-        public static void SendData(byte[] data)
-        {
-            using (ByteBuffer buffer = new ByteBuffer())
-            {
-                buffer.WriteInteger((data.GetUpperBound(0) - data.GetLowerBound(0) + 1));
-                buffer.WriteBytes(data);
-                clientStream.BeginWrite(buffer.ToArray(), 0, buffer.ToArray().Length, null, null);
-            }
-        }
-
-        public static void Disconect()
-        {
-            clientSocket.Close();
-        }
+        #endregion Methods
     }
 }

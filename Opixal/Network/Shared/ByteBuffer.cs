@@ -7,10 +7,17 @@ namespace Opixal.Network.Shared
 {
     public class ByteBuffer : IDisposable
     {
+        #region Fields
+
         private readonly List<byte> Buffer;
+        private bool BufferUpdated = false;
+        private bool disposedValue = false;
         private byte[] ReadBuffer;
         private int ReadPosition;
-        private bool BufferUpdated = false;
+
+        #endregion Fields
+
+        #region Constructors
 
         public ByteBuffer()
         {
@@ -18,25 +25,9 @@ namespace Opixal.Network.Shared
             ReadPosition = 0;
         }
 
-        public int GetReadPosition()
-        {
-            return ReadPosition;
-        }
+        #endregion Constructors
 
-        public byte[] ToArray()
-        {
-            return Buffer.ToArray();
-        }
-
-        public int Count()
-        {
-            return Buffer.Count();
-        }
-
-        public int Length()
-        {
-            return Count() - ReadPosition;
-        }
+        #region Methods
 
         public void Clear()
         {
@@ -44,53 +35,50 @@ namespace Opixal.Network.Shared
             ReadPosition = 0;
         }
 
-        public void WriteByte(byte input)
+        public int Count()
         {
-            Buffer.Add(input);
-            BufferUpdated = true;
+            return Buffer.Count();
         }
 
-        public void WriteBytes(byte[] input)
+        public void Dispose()
         {
-            Buffer.AddRange(input);
-            BufferUpdated = true;
+            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
         }
 
-        public void WriteShort(short input)
+        public int GetReadPosition()
         {
-            Buffer.AddRange(BitConverter.GetBytes(input));
-            BufferUpdated = true;
+            return ReadPosition;
         }
 
-        public void WriteInteger(int input)
+        public int Length()
         {
-            Buffer.AddRange(BitConverter.GetBytes(input));
-            BufferUpdated = true;
+            return Count() - ReadPosition;
         }
 
-        public void WriteLong(long input)
+        public bool ReadBool(bool Peek = true)
         {
-            Buffer.AddRange(BitConverter.GetBytes(input));
-            BufferUpdated = true;
-        }
+            if (Buffer.Count > ReadPosition)
+            {
+                if (BufferUpdated)
+                {
+                    ReadBuffer = Buffer.ToArray();
+                    BufferUpdated = false;
+                }
 
-        public void WriteFloat(float input)
-        {
-            Buffer.AddRange(BitConverter.GetBytes(input));
-            BufferUpdated = true;
-        }
+                bool value = BitConverter.ToBoolean(ReadBuffer, ReadPosition);
+                if (Peek && Buffer.Count > ReadPosition)
+                {
+                    ReadPosition += 1;
+                }
 
-        public void WriteBool(bool input)
-        {
-            Buffer.AddRange(BitConverter.GetBytes(input));
-            BufferUpdated = true;
-        }
-
-        public void WriteString(string input)
-        {
-            Buffer.AddRange(BitConverter.GetBytes(input.Length));
-            Buffer.AddRange(Encoding.ASCII.GetBytes(input));
-            BufferUpdated = true;
+                return value;
+            }
+            else
+            {
+                throw new Exception("The 'bool' value was not contained in ByteBuffer");
+            }
         }
 
         public byte ReadByte(bool Peek = true)
@@ -141,7 +129,7 @@ namespace Opixal.Network.Shared
             }
         }
 
-        public short ReadShort(bool Peek = true)
+        public float ReadFloat(bool Peek = true)
         {
             if (Buffer.Count > ReadPosition)
             {
@@ -151,17 +139,17 @@ namespace Opixal.Network.Shared
                     BufferUpdated = false;
                 }
 
-                short value = BitConverter.ToInt16(ReadBuffer, ReadPosition);
+                float value = BitConverter.ToSingle(ReadBuffer, ReadPosition);
                 if (Peek && Buffer.Count > ReadPosition)
                 {
-                    ReadPosition += 2;
+                    ReadPosition += 4;
                 }
 
                 return value;
             }
             else
             {
-                throw new Exception("The 'short' value was not contained in ByteBuffer");
+                throw new Exception("The 'float' value was not contained in ByteBuffer");
             }
         }
 
@@ -213,7 +201,7 @@ namespace Opixal.Network.Shared
             }
         }
 
-        public float ReadFloat(bool Peek = true)
+        public short ReadShort(bool Peek = true)
         {
             if (Buffer.Count > ReadPosition)
             {
@@ -223,41 +211,17 @@ namespace Opixal.Network.Shared
                     BufferUpdated = false;
                 }
 
-                float value = BitConverter.ToSingle(ReadBuffer, ReadPosition);
+                short value = BitConverter.ToInt16(ReadBuffer, ReadPosition);
                 if (Peek && Buffer.Count > ReadPosition)
                 {
-                    ReadPosition += 4;
+                    ReadPosition += 2;
                 }
 
                 return value;
             }
             else
             {
-                throw new Exception("The 'float' value was not contained in ByteBuffer");
-            }
-        }
-
-        public bool ReadBool(bool Peek = true)
-        {
-            if (Buffer.Count > ReadPosition)
-            {
-                if (BufferUpdated)
-                {
-                    ReadBuffer = Buffer.ToArray();
-                    BufferUpdated = false;
-                }
-
-                bool value = BitConverter.ToBoolean(ReadBuffer, ReadPosition);
-                if (Peek && Buffer.Count > ReadPosition)
-                {
-                    ReadPosition += 1;
-                }
-
-                return value;
-            }
-            else
-            {
-                throw new Exception("The 'bool' value was not contained in ByteBuffer");
+                throw new Exception("The 'short' value was not contained in ByteBuffer");
             }
         }
 
@@ -286,7 +250,59 @@ namespace Opixal.Network.Shared
             }
         }
 
-        private bool disposedValue = false;
+        public byte[] ToArray()
+        {
+            return Buffer.ToArray();
+        }
+
+        public void WriteBool(bool input)
+        {
+            Buffer.AddRange(BitConverter.GetBytes(input));
+            BufferUpdated = true;
+        }
+
+        public void WriteByte(byte input)
+        {
+            Buffer.Add(input);
+            BufferUpdated = true;
+        }
+
+        public void WriteBytes(byte[] input)
+        {
+            Buffer.AddRange(input);
+            BufferUpdated = true;
+        }
+
+        public void WriteFloat(float input)
+        {
+            Buffer.AddRange(BitConverter.GetBytes(input));
+            BufferUpdated = true;
+        }
+
+        public void WriteInteger(int input)
+        {
+            Buffer.AddRange(BitConverter.GetBytes(input));
+            BufferUpdated = true;
+        }
+
+        public void WriteLong(long input)
+        {
+            Buffer.AddRange(BitConverter.GetBytes(input));
+            BufferUpdated = true;
+        }
+
+        public void WriteShort(short input)
+        {
+            Buffer.AddRange(BitConverter.GetBytes(input));
+            BufferUpdated = true;
+        }
+
+        public void WriteString(string input)
+        {
+            Buffer.AddRange(BitConverter.GetBytes(input.Length));
+            Buffer.AddRange(Encoding.ASCII.GetBytes(input));
+            BufferUpdated = true;
+        }
 
         protected virtual void Dispose(bool disposing)
         {
@@ -301,11 +317,6 @@ namespace Opixal.Network.Shared
             }
         }
 
-        public void Dispose()
-        {
-            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
-            Dispose(disposing: true);
-            GC.SuppressFinalize(this);
-        }
+        #endregion Methods
     }
 }

@@ -1,5 +1,4 @@
 ﻿using Opixal.Network.Shared;
-using System;
 using System.Collections.Generic;
 using System.Threading;
 
@@ -7,16 +6,20 @@ namespace Opixal.Network.Client
 {
     internal static class ClientHandler
     {
+        #region Fields
+
+        public static readonly Dictionary<int, Packet> packets = new Dictionary<int, Packet>();
         private static ByteBuffer clientBuffer;
+
+        #endregion Fields
+
+        #region Delegates
 
         public delegate void Packet(byte[] data);
 
-        public static readonly Dictionary<int, Packet> packets = new Dictionary<int, Packet>();
+        #endregion Delegates
 
-        public static void InitializePackets()
-        {
-            packets.Add((int)PacketType.Handshake, PacketReceiver.ClientOnReceive);
-        }
+        #region Methods
 
         public static void HandleData(byte[] data)
         {
@@ -72,6 +75,11 @@ namespace Opixal.Network.Client
             }
         }
 
+        public static void InitializePackets()
+        {
+            packets.Add((int)PacketType.Handshake, PacketReceiver.ClientOnReceive);
+        }
+
         private static void HandleDataPackets(byte[] data)
         {
             using (ByteBuffer buffer = new ByteBuffer())
@@ -85,10 +93,14 @@ namespace Opixal.Network.Client
                 }
             }
         }
+
+        #endregion Methods
     }
 
     internal static class PacketReceiver
     {
+        #region Methods
+
         public static void ClientOnReceive(byte[] data)
         {
             using (ByteBuffer buffer = new ByteBuffer())
@@ -96,24 +108,31 @@ namespace Opixal.Network.Client
                 buffer.WriteBytes(data);
                 int packetID = buffer.ReadInteger(); // Not Used
                 string message = buffer.ReadString();
-                Console.WriteLine(message);
+                //Console.WriteLine(message);
+                Program.LogManager.Log(new Logging.LogEntry(Logging.LoggingEventType.DEBUG, message));
             }
 
             Thread.Sleep(1000); // remove this
             PacketSender.ClientOnSend();
         }
+
+        #endregion Methods
     }
 
     internal static class PacketSender
     {
+        #region Methods
+
         public static void ClientOnSend()
         {
             using (ByteBuffer buffer = new ByteBuffer())
             {
                 buffer.WriteInteger((int)PacketType.Handshake);
-                buffer.WriteString("Hello Server");
+                buffer.WriteString($"Client Sent a Package of type {PacketType.Handshake}");
                 Client.SendData(buffer.ToArray());
             }
         }
+
+        #endregion Methods
     }
 }

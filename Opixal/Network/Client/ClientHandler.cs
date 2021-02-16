@@ -109,7 +109,7 @@ namespace Opixal.Network.Client
                 int packetID = buffer.ReadInteger(); // Not Used
                 string message = buffer.ReadString();
                 //Console.WriteLine(message);
-                Program.LogManager.Log(new Logging.LogEntry(Logging.LoggingEventType.DEBUG, message));
+                Global.LogManager.Log(new Logging.LogEntry(Logging.LoggingEventType.DEBUG, message));
             }
 
             Thread.Sleep(1000); // remove this

@@ -63,13 +63,13 @@ namespace Opixal.Network.Server
             stream.BeginRead(receiveBuffer, 0, socket.ReceiveBufferSize, OnReceiveData, null);
             
             //Console.WriteLine("Incoming connection from '{0}' received.", socket.Client.RemoteEndPoint);
-            Program.LogManager.LogInfo(message: $"Incoming connection from {socket.Client.RemoteEndPoint} received.", type: typeof(ClientObject));
+            Global.LogManager.LogInfo(message: $"Incoming connection from {socket.Client.RemoteEndPoint} received.", type: typeof(ClientObject));
         }
 
         private void CloseConnection()
         {
             //Console.WriteLine("Connection from '{0}' has been terminated.", socket.Client.RemoteEndPoint);
-            Program.LogManager.LogInfo(message: $"Connection from {socket.Client.RemoteEndPoint} has been terminated.", type: typeof(ClientObject));
+            Global.LogManager.LogInfo(message: $"Connection from {socket.Client.RemoteEndPoint} has been terminated.", type: typeof(ClientObject));
 
             socket.Close();
         }
@@ -113,14 +113,14 @@ namespace Opixal.Network.Server
         public static void InitializeNetwork(int port)
         {
             //Console.WriteLine("Initializing Packets");
-            Program.LogManager.LogInfo(message: "Initializing Packets", type: typeof(Server));
+            Global.LogManager.LogInfo(message: "Initializing Packets", type: typeof(Server));
             ServerHandler.InitializePackets();
 
             serverSocket = new TcpListener(IPAddress.Any, port);
             serverSocket.Start();
             serverSocket.BeginAcceptTcpClient(new AsyncCallback(OnClientConnect), null);
             //Console.WriteLine("Server Started on {0}", serverSocket.LocalEndpoint);
-            Program.LogManager.LogInfo(message: $"Server Started on {serverSocket.LocalEndpoint}", type: typeof(Server));
+            Global.LogManager.LogInfo(message: $"Server Started on {serverSocket.LocalEndpoint}", type: typeof(Server));
 
         }
 

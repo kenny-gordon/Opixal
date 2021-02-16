@@ -2,6 +2,39 @@
 
 namespace Opixal.Logging
 {
+    public enum LoggingEventType 
+    {
+        DEBUG = 0, 
+        INFO = 1, 
+        WARN = 2,
+        ERROR = 3, 
+        FATAL = 4 
+    };
+
+    public interface ILogEntry
+    {
+        #region Properties
+
+        LoggingEventType Severity { get; }
+        string Message { get; }
+        Object Type { get; }
+        Exception Exception { get; }
+
+        #endregion Properties
+    }
+
+    public abstract class LogEntryBase : ILogEntry
+    {
+        #region Properties
+
+        public LoggingEventType Severity { get; protected set; }
+        public string Message { get; protected set; }
+        public Object Type { get; protected set; }
+        public Exception Exception { get; protected set; }
+
+        #endregion Properties
+    }
+    
     public class LogEntry : LogEntryBase
     {
         #region Constructors
@@ -36,17 +69,5 @@ namespace Opixal.Logging
         }
 
         #endregion Constructors
-    }
-
-    public abstract class LogEntryBase : ILogEntry
-    {
-        #region Properties
-
-        public LoggingEventType Severity { get; protected set; }
-        public string Message { get; protected set; }
-        public Object Type { get; protected set; }
-        public Exception Exception { get; protected set; }
-
-        #endregion Properties
     }
 }

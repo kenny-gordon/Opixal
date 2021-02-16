@@ -1,6 +1,4 @@
-﻿using Opixal.Logging;
-using Opixal.Logging.Provider;
-using Opixal.Network.Client;
+﻿using Opixal.Network.Client;
 using Opixal.Network.Server;
 using System;
 
@@ -8,6 +6,8 @@ namespace Opixal
 {
     internal class Program
     {
+        #region Methods
+
         private static void Main(string[] args)
         {
             // Start a Server on Port 5000
@@ -19,5 +19,6 @@ namespace Opixal
             Console.ReadLine();
         }
 
+        #endregion Methods
     }
 }

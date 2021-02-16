@@ -61,7 +61,7 @@ namespace Opixal.Network.Server
             stream = socket.GetStream();
             receiveBuffer = new byte[4096];
             stream.BeginRead(receiveBuffer, 0, socket.ReceiveBufferSize, OnReceiveData, null);
-            
+
             //Console.WriteLine("Incoming connection from '{0}' received.", socket.Client.RemoteEndPoint);
             Global.LogManager.LogInfo(message: $"Incoming connection from {socket.Client.RemoteEndPoint} received.", type: typeof(ClientObject));
         }
@@ -121,7 +121,6 @@ namespace Opixal.Network.Server
             serverSocket.BeginAcceptTcpClient(new AsyncCallback(OnClientConnect), null);
             //Console.WriteLine("Server Started on {0}", serverSocket.LocalEndpoint);
             Global.LogManager.LogInfo(message: $"Server Started on {serverSocket.LocalEndpoint}", type: typeof(Server));
-
         }
 
         private static void OnClientConnect(IAsyncResult asyncResult)

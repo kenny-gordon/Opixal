@@ -2,13 +2,13 @@
 
 namespace Opixal.Logging
 {
-    public enum LoggingEventType 
+    public enum LoggingEventType
     {
-        DEBUG = 0, 
-        INFO = 1, 
+        DEBUG = 0,
+        INFO = 1,
         WARN = 2,
-        ERROR = 3, 
-        FATAL = 4 
+        ERROR = 3,
+        FATAL = 4
     };
 
     public interface ILogEntry
@@ -34,7 +34,7 @@ namespace Opixal.Logging
 
         #endregion Properties
     }
-    
+
     public class LogEntry : LogEntryBase
     {
         #region Constructors
@@ -71,3 +71,4 @@ namespace Opixal.Logging
         #endregion Constructors
     }
 }
+

@@ -106,7 +106,7 @@ namespace Opixal.Network.Client
             using (ByteBuffer buffer = new ByteBuffer())
             {
                 buffer.WriteBytes(data);
-                int packetID = buffer.ReadInteger(); // Not Used
+                _ = buffer.ReadInteger(); // packetID Not Used
                 string message = buffer.ReadString();
                 //Console.WriteLine(message);
                 Global.LogManager.Log(new Logging.LogEntry(Logging.LoggingEventType.DEBUG, message));

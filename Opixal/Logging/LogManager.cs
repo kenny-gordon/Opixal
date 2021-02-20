@@ -94,7 +94,6 @@ namespace Opixal.Logging
         {
             try
             {
-                this.LogInfo($"{this} has been disposed.");
                 _logEntriesQueue.CompleteAdding();
                 _consumerThread.Join(TimeSpan.FromSeconds(5));
             }

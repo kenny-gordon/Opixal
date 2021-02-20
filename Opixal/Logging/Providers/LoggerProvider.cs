@@ -32,7 +32,7 @@ namespace Opixal.Logging.Provider
             {
                 string logEntryString = $"{TimeStamp} [{log.Severity}] {log.Message} {log.Type} {log.Exception}";
 
-                if (log.Severity >= (LoggingEventType)LoggingLevel)
+                if (log.Severity >= LoggingLevel)
                 {
                     switch (log.Severity)
                     {
@@ -112,7 +112,7 @@ namespace Opixal.Logging.Provider
             {
                 string logEntryString = $"{TimeStamp} [{log.Severity}] {log.Message} {log.Type} {log.Exception}";
 
-                if (log.Severity >= (LoggingEventType)LoggingLevel)
+                if (log.Severity >= LoggingLevel)
                 {
                     if (EnableJSON)
                     {
